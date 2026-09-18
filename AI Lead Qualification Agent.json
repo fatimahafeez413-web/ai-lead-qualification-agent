@@ -1,0 +1,261 @@
+{
+  "name": "AI Lead Qualification Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-5",
+          "cachedResultName": "Claude Sonnet 5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.6,
+      "position": [
+        96,
+        208
+      ],
+      "id": "ebd31304-8d69-4e0d-8d02-8acfc1f53e4e",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0cac4991-e8a4-4c43-8ad6-4f446ab38d01",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Hot",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        592,
+        0
+      ],
+      "id": "4a3c7990-4512-427d-b0f1-1b03f8197ecd",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1AuSgi_LdS9aT1vA7UnfkDApkbI8fB4Bub2ntMIA1Rqc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AuSgi_LdS9aT1vA7UnfkDApkbI8fB4Bub2ntMIA1Rqc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name ": "={{ JSON.parse($json.output.replace(/```json\\n|```/g, '')).name }}",
+            "Score": "={{ JSON.parse($json.output.replace(/```json\\n|```/g, '')).score.toString().trim() }}\n",
+            "Category": "={{ JSON.parse($json.output.replace(/```json\\n|```/g, '')).category }}",
+            "Reason": "= {{ JSON.parse($json.output.replace(/```json\\n|```/g, '')).reason }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name ",
+              "displayName": "Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        816,
+        -16
+      ],
+      "id": "f2ad3a0e-e853-4268-af0d-de05fc05c26c",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "uZqZUvNw1HPctDsL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1rHvhAfIZpui_O8vNY9w9g8-rdZ_S8QvgfYLbDRfynU0/edit?resourcekey=&gid=1397213976#gid=1397213976",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1397213976,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rHvhAfIZpui_O8vNY9w9g8-rdZ_S8QvgfYLbDRfynU0/edit#gid=1397213976"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "5e81db79-50a0-424c-bff3-c80bf8d45419",
+      "name": "Google Sheets Trigger1",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "OMO7IWF9k2Rh1ySN",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a lead qualification assistant for a freelance content writing / AI automation business.\n\nHere is the lead information:\n- Name: {{ $json.Name }}\n- Email: {{ $json.Email }}\n- Message: {{ $json['What do you need help with?'] }}\n- Budget mentioned: {{ $json['Whats your Budget?'] }}\n\nScore this lead from 1-10 based on:\n1. Budget clarity — did they mention a real number or range? (higher = more qualified)\n2. Project specificity — do they know what they need, or is it vague?\n3. Urgency — do they mention a deadline or timeline?\n4. Fit — does the request match services actually offered (content writing, automation, etc.)?\n\nReturn ONLY valid JSON in this exact format:\n{\n  \"name\": \"<the lead's name>\",\n  \"score\": <1-10>,\n  \"category\": \"Hot | Warm | Cold\",\n  \"reason\": \"<one sentence explaining the score>\",\n  \"suggested_next_step\": \"<what to do next>\"\n}\n\nRules:\n- Hot = score 8-10 (clear budget + clear need + urgency)\n- Warm = score 4-7 (interested but missing details)\n- Cold = score 1-3 (vague, no budget signal, or mismatched request)",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7545e790-b59a-4648-8456-2a0fc8274b7b",
+      "name": "AI Agent",
+      "alwaysOutputData": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6dcf5c26-d223-4d27-8d9f-918d4f38b2e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "29da7b2fe4745412fb7c023fa8ed088524a97150147a955914371b6f546eded9"
+  },
+  "nodeGroups": [],
+  "id": "fYCM6i4j1Bzq904s",
+  "tags": []
+}
